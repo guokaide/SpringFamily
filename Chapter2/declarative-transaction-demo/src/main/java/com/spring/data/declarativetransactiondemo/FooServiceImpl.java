@@ -10,6 +10,9 @@ public class FooServiceImpl implements FooService {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+    @Autowired
+    private FooService fooService;
+
     @Override
     @Transactional
     public void insertRecord() {
@@ -24,9 +27,11 @@ public class FooServiceImpl implements FooService {
 
     }
 
-    // 本身这个方法没有事务，因此其内部方法也没有真正启用事务
+    // 本身insertThenRollback()这个方法没有事务，真正执行事务的是Spring提供的代理类。因此其内部方法也没有真正启用事务
+    // 如何解决呢？
     @Override
     public void invokeInsertThenRollback() throws RollbackException {
-        insertThenRollback();
+        // insertThenRollback();
+        fooService.insertThenRollback(); // 解决：直接调用FooService的方法，这是因为这是通过接口代理的
     }
 }
